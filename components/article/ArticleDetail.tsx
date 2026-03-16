@@ -1,8 +1,9 @@
 import type { Article } from "@/types/content";
+import CategoryLink from "@/components/category/CategoryLink";
 
-// This component is responsible only for rendering the article detail UI.
-// It does not fetch data by itself.
-// That keeps the page route focused on routing and data loading.
+// This component renders the article detail UI.
+// We include category navigation so the detail page can link back
+// into taxonomy-driven browsing.
 
 type ArticleDetailProps = {
   article: Article;
@@ -16,6 +17,12 @@ export default function ArticleDetail({ article }: ArticleDetailProps) {
       <p>
         <strong>Slug:</strong> {article.slug}
       </p>
+
+      {article.category && (
+        <p>
+          <strong>Category:</strong> <CategoryLink category={article.category} />
+        </p>
+      )}
 
       <p>{article.excerpt}</p>
 

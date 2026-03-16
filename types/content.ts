@@ -1,9 +1,14 @@
-// This file defines the data shapes used by the app.
-// Keeping types in one place makes page files easier to read
-// and helps you understand what the GraphQL response looks like.
+// This file defines the shared data shapes used across the app.
+// We are extending the content model with Category so the frontend
+// can render relationship-driven navigation, not just a flat article list.
 
 export type RichTextHtml = {
   html?: string;
+};
+
+export type Category = {
+  name: string;
+  slug: string;
 };
 
 export type PageItem = {
@@ -17,6 +22,7 @@ export type Article = {
   slug: string;
   excerpt: string;
   content?: RichTextHtml;
+  category?: Category | null;
 };
 
 export type HomePageResponse = {
@@ -25,5 +31,13 @@ export type HomePageResponse = {
 };
 
 export type ArticleBySlugResponse = {
+  articles: Article[];
+};
+
+export type CategoryBySlugResponse = {
+  categories: Category[];
+};
+
+export type ArticlesByCategorySlugResponse = {
   articles: Article[];
 };

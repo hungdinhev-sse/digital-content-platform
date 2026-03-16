@@ -1,13 +1,21 @@
 import ArticleList from "@/components/article/ArticleList";
+import ArticleSearch from "@/components/article/ArticleSearch";
 import PageHero from "@/components/page/PageHero";
-import { getHomePageAndArticles } from "@/lib/content";
+import { getHomePageAndArticlesByQuery } from "@/lib/content";
 
-// This page focuses only on route-level responsibilities:
-// fetch data and compose UI components.
-// Shared page structure now lives in app/layout.tsx.
+// This page stays as a Server Component.
+// It reads the query from the URL and fetches filtered data on the server.
 
-export default async function HomePage() {
-  const { homePage, articles } = await getHomePageAndArticles();
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ query?: string }>;
+}) {
+  const { query = "" } = await searchParams;
+
+  const { homePage, articles } = await getHomePageAndArticlesByQuery(query);
+
+  const hasSearchQuery = query.trim().length > 0;
 
   return (
     <>
@@ -15,7 +23,17 @@ export default async function HomePage() {
 
       <section>
         <h2>Articles</h2>
-        <ArticleList articles={articles} />
+
+        <ArticleSearch />
+
+        <ArticleList
+          articles={articles}
+          emptyMessage={
+            hasSearchQuery
+              ? `No articles matched "${query}".`
+              : "No articles found."
+          }
+        />
       </section>
     </>
   );
