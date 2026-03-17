@@ -1,6 +1,4 @@
-// This file defines the shared data shapes used across the app.
-// We are extending the content model with Category so the frontend
-// can render relationship-driven navigation, not just a flat article list.
+// Shared content types for the DCP frontend.
 
 export type RichTextHtml = {
   html?: string;
@@ -35,6 +33,10 @@ export type ArticleBySlugResponse = {
 };
 
 export type CategoryBySlugResponse = {
+  categories: Category[];
+};
+
+export type CategoriesResponse = {
   categories: Category[];
 };
 

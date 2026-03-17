@@ -13,9 +13,11 @@ export default function PageHero({ page }: PageHeroProps) {
     <section style={{ marginBottom: "2rem" }}>
       <h1>{page.title}</h1>
 
-      {/* 
+      {/*
         The CMS returns HTML for this field.
-        We render that HTML inside the hero section.
+        Security note:
+        rendering raw HTML is only acceptable if the CMS content is trusted
+        or sanitized before delivery, otherwise this can introduce XSS risk.
       */}
       <div
         dangerouslySetInnerHTML={{

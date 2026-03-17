@@ -26,9 +26,11 @@ export default function ArticleDetail({ article }: ArticleDetailProps) {
 
       <p>{article.excerpt}</p>
 
-      {/* 
+       {/*
         The article body currently comes from Hygraph as HTML.
-        We inject it into the page so the CMS-managed rich text can render.
+        Security note:
+        this assumes the HTML is trusted or sanitized before rendering.
+        Raw HTML rendering can be risky if untrusted content is allowed.
       */}
       <div
         dangerouslySetInnerHTML={{

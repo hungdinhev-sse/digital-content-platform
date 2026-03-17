@@ -1,21 +1,39 @@
 import ArticleList from "@/components/article/ArticleList";
 import ArticleSearch from "@/components/article/ArticleSearch";
+import CategoryFilter from "@/components/category/CategoryFilter";
 import PageHero from "@/components/page/PageHero";
-import { getHomePageAndArticlesByQuery } from "@/lib/content";
+import {
+  getCategories,
+  getHomePageAndArticlesByFilters,
+} from "@/lib/content";
 
 // This page stays as a Server Component.
-// It reads the query from the URL and fetches filtered data on the server.
+// It reads URL search params and fetches filtered data on the server.
 
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ query?: string }>;
+  searchParams: Promise<{ query?: string; category?: string }>;
 }) {
-  const { query = "" } = await searchParams;
+  const { query = "", category = "" } = await searchParams;
 
-  const { homePage, articles } = await getHomePageAndArticlesByQuery(query);
+  const [{ homePage, articles }, categories] = await Promise.all([
+    getHomePageAndArticlesByFilters(query, category),
+    getCategories(),
+  ]);
 
   const hasSearchQuery = query.trim().length > 0;
+  const hasCategoryFilter = category.trim().length > 0;
+
+  let emptyMessage = "No articles found.";
+
+  if (hasSearchQuery && hasCategoryFilter) {
+    emptyMessage = `No articles matched "${query}" in the selected category.`;
+  } else if (hasSearchQuery) {
+    emptyMessage = `No articles matched "${query}".`;
+  } else if (hasCategoryFilter) {
+    emptyMessage = "No articles found in the selected category.";
+  }
 
   return (
     <>
@@ -25,15 +43,9 @@ export default async function HomePage({
         <h2>Articles</h2>
 
         <ArticleSearch />
+        <CategoryFilter categories={categories} />
 
-        <ArticleList
-          articles={articles}
-          emptyMessage={
-            hasSearchQuery
-              ? `No articles matched "${query}".`
-              : "No articles found."
-          }
-        />
+        <ArticleList articles={articles} emptyMessage={emptyMessage} />
       </section>
     </>
   );

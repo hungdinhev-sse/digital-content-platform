@@ -15,6 +15,8 @@ export default function ArticleSearch() {
   // Local input state updates immediately as the user types.
   const [value, setValue] = useState(searchParams.get("query") ?? "");
 
+  const selectedCategory = searchParams.get("category") ?? "";
+
   // Keep input state aligned when the URL changes from navigation.
   useEffect(() => {
     setValue(searchParams.get("query") ?? "");
@@ -52,6 +54,29 @@ export default function ArticleSearch() {
     return () => clearTimeout(timeoutId);
   }, [value, pathname, router, searchParams]);
 
+  function handleClearSearch() {
+    // Clear only the search query, but keep any other filters like category.
+    setValue("");
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("query");
+
+    const nextQueryString = params.toString();
+    const nextUrl = nextQueryString ? `${pathname}?${nextQueryString}` : pathname;
+
+    router.replace(nextUrl);
+  }
+
+  function handleClearAllFilters() {
+    // Reset all homepage filter state at once.
+    // This returns the page to its default URL and default data state.
+    setValue("");
+    router.replace(pathname);
+  }
+
+  const hasSearch = value.trim().length > 0;
+  const hasAnyFilter = hasSearch || selectedCategory.length > 0;
+
   return (
     <div style={{ marginBottom: "1.5rem" }}>
       <label
@@ -61,21 +86,69 @@ export default function ArticleSearch() {
         Search articles
       </label>
 
-      <input
-        id="article-search"
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder="Search by title or excerpt"
+      <div
         style={{
-          width: "100%",
-          maxWidth: "420px",
-          padding: "0.75rem",
-          border: "1px solid #d0d0d0",
-          borderRadius: "8px",
-          fontSize: "1rem",
+          display: "flex",
+          gap: "0.75rem",
+          alignItems: "center",
+          flexWrap: "wrap",
         }}
-      />
+      >
+        <input
+          id="article-search"
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Search by title or excerpt"
+          style={{
+            width: "100%",
+            maxWidth: "420px",
+            padding: "0.75rem",
+            border: "1px solid #d0d0d0",
+            borderRadius: "8px",
+            fontSize: "1rem",
+          }}
+        />
+
+        {/* 
+          Clear removes only the search query and keeps other filters intact.
+        */}
+        {hasSearch && (
+          <button
+            type="button"
+            onClick={handleClearSearch}
+            style={{
+              padding: "0.75rem 1rem",
+              border: "1px solid #d0d0d0",
+              borderRadius: "8px",
+              backgroundColor: "#ffffff",
+              cursor: "pointer",
+            }}
+          >
+            Clear search
+          </button>
+        )}
+
+        {/* 
+          Clear all resets both query and category filter by returning
+          the route to its base pathname with no search params.
+        */}
+        {hasAnyFilter && (
+          <button
+            type="button"
+            onClick={handleClearAllFilters}
+            style={{
+              padding: "0.75rem 1rem",
+              border: "1px solid #d0d0d0",
+              borderRadius: "8px",
+              backgroundColor: "#f7f7f7",
+              cursor: "pointer",
+            }}
+          >
+            Clear all filters
+          </button>
+        )}
+      </div>
     </div>
   );
 }

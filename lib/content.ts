@@ -2,14 +2,15 @@ import { hygraph } from "@/lib/hygraph";
 import {
   GET_ARTICLE_BY_SLUG,
   GET_ARTICLES_BY_CATEGORY_SLUG,
+  GET_CATEGORIES,
   GET_CATEGORY_BY_SLUG,
   GET_HOME_PAGE_AND_ARTICLES,
-  GET_HOME_PAGE_AND_FILTERED_ARTICLES,
 } from "@/lib/queries";
 import type {
   Article,
   ArticleBySlugResponse,
   ArticlesByCategorySlugResponse,
+  CategoriesResponse,
   Category,
   CategoryBySlugResponse,
   HomePageResponse,
@@ -29,6 +30,37 @@ export async function getHomePageAndArticles(): Promise<{
   return {
     homePage: data.pages[0] ?? null,
     articles: data.articles ?? [],
+  };
+}
+
+export async function getHomePageAndArticlesByFilters(
+  query: string,
+  categorySlug: string
+): Promise<{
+  homePage: PageItem | null;
+  articles: Article[];
+}> {
+  const { homePage, articles } = await getHomePageAndArticles();
+
+  const normalizedQuery = query.trim().toLowerCase();
+  const normalizedCategorySlug = categorySlug.trim().toLowerCase();
+
+  const filteredArticles = articles.filter((article) => {
+    const matchesQuery =
+      !normalizedQuery ||
+      article.title.toLowerCase().includes(normalizedQuery) ||
+      article.excerpt.toLowerCase().includes(normalizedQuery);
+
+    const matchesCategory =
+      !normalizedCategorySlug ||
+      article.category?.slug?.toLowerCase() === normalizedCategorySlug;
+
+    return matchesQuery && matchesCategory;
+  });
+
+  return {
+    homePage,
+    articles: filteredArticles,
   };
 }
 
@@ -54,6 +86,11 @@ export async function getCategoryBySlug(
   return data.categories[0] ?? null;
 }
 
+export async function getCategories(): Promise<Category[]> {
+  const data = await hygraph.request<CategoriesResponse>(GET_CATEGORIES);
+  return data.categories ?? [];
+}
+
 export async function getArticlesByCategorySlug(
   slug: string
 ): Promise<Article[]> {
@@ -63,31 +100,4 @@ export async function getArticlesByCategorySlug(
   );
 
   return data.articles ?? [];
-}
-
-
-
-// This helper supports homepage search.
-// The page remains server-rendered, but its result changes based on the URL query.
-export async function getHomePageAndArticlesByQuery(
-  query: string
-): Promise<{
-  homePage: PageItem | null;
-  articles: Article[];
-}> {
-  // If there is no search query, reuse the normal homepage fetch logic.
-  // This keeps the default state simple and avoids unnecessary filtering logic.
-  if (!query.trim()) {
-    return getHomePageAndArticles();
-  }
-
-  const data = await hygraph.request<HomePageResponse>(
-    GET_HOME_PAGE_AND_FILTERED_ARTICLES,
-    { query }
-  );
-
-  return {
-    homePage: data.pages[0] ?? null,
-    articles: data.articles ?? [],
-  };
 }
