@@ -1,13 +1,18 @@
 import ArticleDetail from "@/components/article/ArticleDetail";
-import { getArticleBySlug } from "@/lib/content";
+import { getArticleBySlug, getArticleSlugs } from "@/lib/content";
 import { notFound } from "next/navigation";
 
-// This route file should stay thin.
-// Its responsibilities are:
-// 1) read the slug from route params
-// 2) fetch the article
-// 3) trigger 404 if missing
-// 4) hand the data to a UI component
+// Article detail pages are a good fit for timed revalidation:
+// content is mostly read-heavy and can tolerate slight staleness.
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const slugs = await getArticleSlugs();
+
+  return slugs.map((slug) => ({
+    slug,
+  }));
+}
 
 export default async function ArticleDetailPage({
   params,

@@ -23,6 +23,10 @@ export type Article = {
   category?: Category | null;
 };
 
+export type SlugItem = {
+  slug: string;
+};
+
 export type HomePageResponse = {
   pages: PageItem[];
   articles: Article[];
@@ -38,6 +42,14 @@ export type CategoryBySlugResponse = {
 
 export type CategoriesResponse = {
   categories: Category[];
+};
+
+export type ArticleSlugsResponse = {
+  articles: SlugItem[];
+};
+
+export type CategorySlugsResponse = {
+  categories: SlugItem[];
 };
 
 export type ArticlesByCategorySlugResponse = {

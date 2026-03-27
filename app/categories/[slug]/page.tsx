@@ -3,10 +3,20 @@ import ArticleList from "@/components/article/ArticleList";
 import {
   getArticlesByCategorySlug,
   getCategoryBySlug,
+  getCategorySlugs,
 } from "@/lib/content";
 
-// This dynamic route handles category landing pages.
-// It fetches the category itself and all articles that belong to it.
+// Category landing pages are also mostly read-heavy,
+// so timed revalidation is a reasonable default.
+export const revalidate = 300;
+
+export async function generateStaticParams() {
+  const slugs = await getCategorySlugs();
+
+  return slugs.map((slug) => ({
+    slug,
+  }));
+}
 
 export default async function CategoryDetailPage({
   params,
@@ -17,7 +27,6 @@ export default async function CategoryDetailPage({
 
   const category = await getCategoryBySlug(slug);
 
-  // If the category itself does not exist, we should render the framework 404 page.
   if (!category) {
     notFound();
   }

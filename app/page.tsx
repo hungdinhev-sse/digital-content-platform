@@ -7,8 +7,9 @@ import {
   getHomePageAndArticlesByFilters,
 } from "@/lib/content";
 
-// This page stays as a Server Component.
-// It reads URL search params and fetches filtered data on the server.
+// This homepage depends on URL search params like query and category,
+// so we keep it dynamic instead of treating it like a mostly static page.
+export const dynamic = "force-dynamic";
 
 export default async function HomePage({
   searchParams,
